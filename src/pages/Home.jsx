@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getProducts, searchProducts, getCategories, getProductsByCategory, addToCart, toggleWishlist, getWishlistIds, getProductReviews, addReview } from '../api';
 import { useAuth } from '../AuthContext';
 import { FiSearch, FiHeart, FiStar } from 'react-icons/fi';
 
 export default function Home() {
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [activeCategory, setActiveCategory] = useState(null);
@@ -172,7 +174,7 @@ export default function Home() {
                     {products.map(product => {
                         const rev = reviews[product.id];
                         return (
-                            <div key={product.id} className="product-card">
+                            <div key={product.id} className="product-card" onClick={() => navigate(`/product/${product.id}`)} style={{ cursor: 'pointer' }}>
                                 <div className="product-image">
                                     {product.imageUrl ? (
                                         <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -10,23 +12,52 @@ import SellerDashboard from './pages/SellerDashboard';
 import AdminPanel from './pages/AdminPanel';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
+import ProductDetail from './pages/ProductDetail';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/seller" element={<SellerDashboard />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-        </Routes>
+        <div style={{ minHeight: 'calc(100vh - 160px)' }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={
+              <ProtectedRoute allowedRoles={['BUYER']}>
+                <Cart />
+              </ProtectedRoute>
+            } />
+            <Route path="/orders" element={
+              <ProtectedRoute allowedRoles={['BUYER']}>
+                <Orders />
+              </ProtectedRoute>
+            } />
+            <Route path="/wishlist" element={
+              <ProtectedRoute allowedRoles={['BUYER']}>
+                <Wishlist />
+              </ProtectedRoute>
+            } />
+            <Route path="/seller" element={
+              <ProtectedRoute allowedRoles={['SELLER']}>
+                <SellerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminPanel />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+        <Footer />
       </BrowserRouter>
     </AuthProvider>
   );
