@@ -28,7 +28,12 @@ export default function Login() {
             loginUser(token, role, name);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid email or password');
+            setError(
+                err.response?.data?.message
+                || (err.message === 'Network Error'
+                    ? 'Cannot reach server. Please try again later.'
+                    : 'Invalid email or password')
+            );
         } finally {
             setLoading(false);
         }
