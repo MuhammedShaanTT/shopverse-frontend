@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, getMe } from '../api';
 import { useAuth } from '../AuthContext';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function Login() {
     const [form, setForm] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPass, setShowPass] = useState(false);
     const { loginUser } = useAuth();
     const navigate = useNavigate();
 
@@ -55,8 +57,14 @@ export default function Login() {
                     </div>
                     <div className="form-group">
                         <label>Password</label>
-                        <input type="password" placeholder="••••••••" value={form.password}
-                            onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+                        <div className="input-with-icon">
+                            <input type={showPass ? 'text' : 'password'} placeholder="••••••••" value={form.password}
+                                onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+                            <button type="button" className="toggle-pass" onClick={() => setShowPass(!showPass)}
+                                aria-label="Toggle password visibility">
+                                {showPass ? <FiEyeOff /> : <FiEye />}
+                            </button>
+                        </div>
                     </div>
                     <button className="btn-primary" type="submit" disabled={loading}>
                         {loading ? 'Signing in...' : 'Sign In'}
