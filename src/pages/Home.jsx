@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProducts, searchProducts, getCategories, getProductsByCategory, addToCart, toggleWishlist, getWishlistIds, getProductReviews, addReview } from '../api';
 import { useAuth } from '../AuthContext';
+import { useToast } from '../components/Toast';
 import { FiSearch, FiHeart, FiStar } from 'react-icons/fi';
 
 export default function Home() {
@@ -11,12 +12,12 @@ export default function Home() {
     const [activeCategory, setActiveCategory] = useState(null);
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(true);
-    const [cartMsg, setCartMsg] = useState('');
     const [wishlistIds, setWishlistIds] = useState([]);
     const [reviewModal, setReviewModal] = useState(null);
     const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
     const [reviews, setReviews] = useState({});
     const { user } = useAuth();
+    const addToast = useToast();
 
     useEffect(() => {
         loadProducts();
@@ -73,11 +74,9 @@ export default function Home() {
     const handleAddToCart = async (productId) => {
         try {
             await addToCart({ productId, quantity: 1 });
-            setCartMsg('Added to cart! ✅');
-            setTimeout(() => setCartMsg(''), 2000);
+            addToast('Added to cart! ✅', 'success');
         } catch (err) {
-            setCartMsg(err.response?.data?.message || 'Failed');
-            setTimeout(() => setCartMsg(''), 2000);
+            addToast(err.response?.data?.message || 'Failed to add to cart', 'error');
         }
     };
 
@@ -97,11 +96,9 @@ export default function Home() {
             setReviewModal(null);
             setReviewData({ rating: 5, comment: '' });
             loadReviews(reviewModal);
-            setCartMsg('Review submitted! ⭐');
-            setTimeout(() => setCartMsg(''), 2000);
+            addToast('Review submitted! ⭐', 'success');
         } catch (err) {
-            setCartMsg(err.response?.data?.message || 'Already reviewed');
-            setTimeout(() => setCartMsg(''), 2000);
+            addToast(err.response?.data?.message || 'Already reviewed', 'error');
             setReviewModal(null);
         }
     };
@@ -137,7 +134,7 @@ export default function Home() {
                 ))}
             </div>
 
-            {cartMsg && <div className="success-msg">{cartMsg}</div>}
+
 
             {/* REVIEW MODAL */}
             {reviewModal && (

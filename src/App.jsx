@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
+import { ToastProvider } from './components/Toast';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,6 +18,7 @@ import ProductDetail from './pages/ProductDetail';
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Navbar />
         <div style={{ minHeight: 'calc(100vh - 160px)' }}>
@@ -59,6 +61,7 @@ function App() {
         </div>
         <Footer />
       </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }
