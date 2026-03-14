@@ -1382,6 +1382,32 @@ body {
   line-height: 1.5;
 }
 
+.footer-social {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.footer-social a {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #334155;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.footer-social a:hover {
+  background: #7c3aed;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
 .footer-links {
   display: flex;
   gap: 3rem;
@@ -1407,11 +1433,44 @@ body {
   color: #c4b5fd;
 }
 
+.footer-contact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.2rem 0;
+  color: #94a3b8;
+}
+
 .footer-bottom {
   border-top: 1px solid #334155;
   padding: 1rem 2rem;
   text-align: center;
   font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-brand {
+    max-width: 100%;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
+
+  .footer-links {
+    gap: 2rem;
+    justify-content: center;
+  }
+
+  .footer-contact {
+    justify-content: center;
+  }
 }
 
 /* ROLE BADGE */
