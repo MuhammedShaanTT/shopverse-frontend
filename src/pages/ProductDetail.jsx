@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProduct, addToCart, toggleWishlist, getWishlistIds, getProductReviews, addReview, getProductsByCategory } from '../api';
 import { useAuth } from '../AuthContext';
-import { FiHeart, FiShoppingCart, FiArrowLeft, FiStar, FiPackage, FiUser } from 'react-icons/fi';
+import { useToast } from '../components/Toast';
+import { FiHeart, FiShoppingCart, FiArrowLeft, FiStar, FiPackage, FiUser, FiPlus, FiMinus } from 'react-icons/fi';
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -14,8 +15,9 @@ export default function ProductDetail() {
     const [wishlistIds, setWishlistIds] = useState([]);
     const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
     const [showReview, setShowReview] = useState(false);
-    const [msg, setMsg] = useState('');
+    const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
+    const addToast = useToast();
 
     useEffect(() => {
         loadProduct();
@@ -51,13 +53,12 @@ export default function ProductDetail() {
     };
 
     const handleAddToCart = async () => {
+        if (!user) { navigate('/login'); return; }
         try {
-            await addToCart({ productId: parseInt(id), quantity: 1 });
-            setMsg('Added to cart! ✅');
-            setTimeout(() => setMsg(''), 3000);
+            await addToCart({ productId: parseInt(id), quantity });
+            addToast(`Added ${quantity} item${quantity > 1 ? 's' : ''} to cart! ✅`, 'success');
         } catch (err) {
-            setMsg(err.response?.data?.message || 'Failed to add to cart');
-            setTimeout(() => setMsg(''), 3000);
+            addToast(err.response?.data?.message || 'Failed to add to cart', 'error');
         }
     };
 
@@ -77,11 +78,9 @@ export default function ProductDetail() {
             setShowReview(false);
             setReviewData({ rating: 5, comment: '' });
             loadReviews();
-            setMsg('Review submitted! ⭐');
-            setTimeout(() => setMsg(''), 3000);
+            addToast('Review submitted! ⭐', 'success');
         } catch (err) {
-            setMsg(err.response?.data?.message || 'Already reviewed');
-            setTimeout(() => setMsg(''), 3000);
+            addToast(err.response?.data?.message || 'Already reviewed', 'error');
             setShowReview(false);
         }
     };
@@ -98,8 +97,6 @@ export default function ProductDetail() {
             <button className="back-btn" onClick={() => navigate(-1)}>
                 <FiArrowLeft /> Back
             </button>
-
-            {msg && <div className="success-msg">{msg}</div>}
 
             <div className="product-detail">
                 <div className="product-detail-image">
@@ -132,19 +129,32 @@ export default function ProductDetail() {
                         </div>
                     )}
 
-                    {user?.role === 'BUYER' && (
+                    {(user?.role === 'BUYER' || !user) && (
                         <div className="product-detail-actions">
+                            <div className="quantity-selector">
+                                <button className="qty-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}>
+                                    <FiMinus />
+                                </button>
+                                <span className="qty-value">{quantity}</span>
+                                <button className="qty-btn" onClick={() => setQuantity(q => Math.min(product.stock, q + 1))} disabled={quantity >= product.stock}>
+                                    <FiPlus />
+                                </button>
+                            </div>
                             <button className="btn-add-cart" onClick={handleAddToCart}
                                 disabled={product.stock === 0}>
-                                <FiShoppingCart /> {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                                <FiShoppingCart /> {product.stock === 0 ? 'Out of Stock' : user ? 'Add to Cart' : 'Login to Buy'}
                             </button>
-                            <button className={`wishlist-action-btn ${isWishlisted ? 'active' : ''}`}
-                                onClick={handleToggleWishlist}>
-                                <FiHeart /> {isWishlisted ? 'Wishlisted' : 'Wishlist'}
-                            </button>
-                            <button className="btn-review-action" onClick={() => setShowReview(!showReview)}>
-                                <FiStar /> Review
-                            </button>
+                            {user && (
+                                <>
+                                    <button className={`wishlist-action-btn ${isWishlisted ? 'active' : ''}`}
+                                        onClick={handleToggleWishlist}>
+                                        <FiHeart /> {isWishlisted ? 'Wishlisted' : 'Wishlist'}
+                                    </button>
+                                    <button className="btn-review-action" onClick={() => setShowReview(!showReview)}>
+                                        <FiStar /> Review
+                                    </button>
+                                </>
+                            )}
                         </div>
                     )}
 
