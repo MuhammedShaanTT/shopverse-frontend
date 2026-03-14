@@ -658,6 +658,74 @@ body {
   color: #94a3b8;
 }
 
+/* SKELETON LOADER */
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.skeleton-card .skeleton-image {
+  height: 180px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-card .skeleton-body {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.skeleton-card .skeleton-title {
+  height: 16px;
+  width: 75%;
+}
+
+.skeleton-card .skeleton-text {
+  height: 12px;
+  width: 90%;
+}
+
+.skeleton-card .skeleton-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.3rem;
+}
+
+.skeleton-card .skeleton-price {
+  height: 20px;
+  width: 60px;
+}
+
+.skeleton-card .skeleton-badge {
+  height: 20px;
+  width: 70px;
+  border-radius: 20px;
+}
+
+.skeleton-card .skeleton-btn {
+  height: 36px;
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 0.3rem;
+}
+
 /* ADMIN TABS */
 .admin-tabs {
   display: flex;

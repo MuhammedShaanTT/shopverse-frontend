@@ -166,7 +166,22 @@ export default function Home() {
             )}
 
             {loading ? (
-                <div className="loading">Loading products...</div>
+                <div className="product-grid">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="skeleton-card">
+                            <div className="skeleton-image" />
+                            <div className="skeleton-body">
+                                <div className="skeleton-line skeleton-title" />
+                                <div className="skeleton-line skeleton-text" />
+                                <div className="skeleton-meta">
+                                    <div className="skeleton-line skeleton-price" />
+                                    <div className="skeleton-line skeleton-badge" />
+                                </div>
+                                <div className="skeleton-line skeleton-btn" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : products.length === 0 ? (
                 <div className="empty-state"><span>📦</span>No products found</div>
             ) : (
