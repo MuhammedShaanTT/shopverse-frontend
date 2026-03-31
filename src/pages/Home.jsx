@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { getProducts, searchProducts, getCategories, getProductsByCategory, addToCart, toggleWishlist, getWishlistIds, getProductReviews, addReview } from '../api';
 import { useAuth } from '../AuthContext';
 import { useToast } from '../components/Toast';
-import { FiSearch, FiHeart, FiStar } from 'react-icons/fi';
+import { PageTransition } from '../components/PageTransition';
+import ScrollReveal from '../components/ScrollReveal';
+import { FiSearch, FiHeart, FiStar, FiArrowRight } from 'react-icons/fi';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -30,7 +33,6 @@ export default function Home() {
         try {
             const res = await getProducts();
             setProducts(res.data.content);
-            // Load reviews for each product
             res.data.content.forEach(p => loadReviews(p.id));
         } catch (err) { console.error(err); }
         setLoading(false);
@@ -74,7 +76,7 @@ export default function Home() {
     const handleAddToCart = async (productId) => {
         try {
             await addToCart({ productId, quantity: 1 });
-            addToast('Added to cart! ✅', 'success');
+            addToast('Added to cart ✓', 'success');
         } catch (err) {
             addToast(err.response?.data?.message || 'Failed to add to cart', 'error');
         }
@@ -96,7 +98,7 @@ export default function Home() {
             setReviewModal(null);
             setReviewData({ rating: 5, comment: '' });
             loadReviews(reviewModal);
-            addToast('Review submitted! ⭐', 'success');
+            addToast('Review submitted ✓', 'success');
         } catch (err) {
             addToast(err.response?.data?.message || 'Already reviewed', 'error');
             setReviewModal(null);
@@ -113,128 +115,186 @@ export default function Home() {
         return '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
     };
 
+    // Duplicate categories for seamless marquee
+    const marqueeItems = [...categories, ...categories, ...categories];
+
     return (
-        <div className="page">
-            <div className="page-header">
-                <h1>Discover Products</h1>
-                <p>Browse our curated collection from top sellers</p>
-            </div>
+        <PageTransition>
+            {/* ─── HERO SECTION ─── */}
+            <section className="hero">
+                <motion.div
+                    className="hero-content"
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+                >
+                    <div className="hero-eyebrow">Curated for the Extraordinary</div>
+                    <h1>Discover What<br />Defines You</h1>
+                    <p className="hero-subtitle">
+                        A carefully curated collection of premium products from trusted sellers around the world.
+                    </p>
+                    <button className="hero-cta" onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}>
+                        Explore Collection <FiArrowRight />
+                    </button>
+                </motion.div>
+            </section>
 
-            <form className="search-bar" onSubmit={handleSearch}>
-                <input placeholder="Search products..." value={query} onChange={(e) => setQuery(e.target.value)} />
-                <button type="submit"><FiSearch /> Search</button>
-            </form>
-
-            <div className="categories-filter">
-                <button className={`category-btn ${!activeCategory ? 'active' : ''}`}
-                    onClick={() => { setActiveCategory(null); loadProducts(); }}>All</button>
-                {categories.map(cat => (
-                    <button key={cat.id} className={`category-btn ${activeCategory === cat.id ? 'active' : ''}`}
-                        onClick={() => filterByCategory(cat.id)}>{cat.name}</button>
-                ))}
-            </div>
-
-
-
-            {/* REVIEW MODAL */}
-            {reviewModal && (
-                <div className="modal-overlay" onClick={() => setReviewModal(null)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3>Write a Review</h3>
-                        <form onSubmit={handleSubmitReview}>
-                            <div className="form-group">
-                                <label>Rating</label>
-                                <div className="star-input">
-                                    {[1, 2, 3, 4, 5].map(s => (
-                                        <span key={s} className={`star-pick ${reviewData.rating >= s ? 'active' : ''}`}
-                                            onClick={() => setReviewData({ ...reviewData, rating: s })}>★</span>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label>Comment (optional)</label>
-                                <input type="text" placeholder="Great product!" value={reviewData.comment}
-                                    onChange={e => setReviewData({ ...reviewData, comment: e.target.value })} />
-                            </div>
-                            <button className="btn-primary" type="submit">Submit Review</button>
-                        </form>
+            {/* ─── MARQUEE ─── */}
+            {categories.length > 0 && (
+                <div className="marquee-container">
+                    <div className="marquee-track">
+                        {marqueeItems.map((cat, i) => (
+                            <span key={i} className="marquee-item">
+                                <span className="marquee-dot" />
+                                {cat.name}
+                            </span>
+                        ))}
                     </div>
                 </div>
             )}
 
-            {loading ? (
-                <div className="product-grid">
-                    {[...Array(8)].map((_, i) => (
-                        <div key={i} className="skeleton-card">
-                            <div className="skeleton-image" />
-                            <div className="skeleton-body">
-                                <div className="skeleton-line skeleton-title" />
-                                <div className="skeleton-line skeleton-text" />
-                                <div className="skeleton-meta">
-                                    <div className="skeleton-line skeleton-price" />
-                                    <div className="skeleton-line skeleton-badge" />
-                                </div>
-                                <div className="skeleton-line skeleton-btn" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : products.length === 0 ? (
-                <div className="empty-state"><span>📦</span>No products found</div>
-            ) : (
-                <div className="product-grid">
-                    {products.map(product => {
-                        const rev = reviews[product.id];
-                        return (
-                            <div key={product.id} className="product-card" onClick={() => navigate(`/product/${product.id}`)} style={{ cursor: 'pointer' }}>
-                                <div className="product-image">
-                                    {product.imageUrl ? (
-                                        <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                        product.categoryName === 'Electronics' ? '💻' :
-                                            product.categoryName === 'Clothing' ? '👕' : '🛍️'
-                                    )}
-                                    {user && (
-                                        <button className={`wishlist-btn ${wishlistIds.includes(product.id) ? 'active' : ''}`}
-                                            onClick={() => handleToggleWishlist(product.id)}>
-                                            <FiHeart />
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="product-info">
-                                    <h3>{product.name}</h3>
-                                    {product.description && <p className="product-seller">{product.description}</p>}
-                                    <div className="product-meta">
-                                        <span className="product-price">₹{product.price}</span>
-                                        <span className="product-category">{product.categoryName}</span>
+            {/* ─── PRODUCTS SECTION ─── */}
+            <div className="page" id="products">
+                <ScrollReveal>
+                    <div className="page-header">
+                        <h2>The Collection</h2>
+                        <p>Browse our curated selection</p>
+                    </div>
+                </ScrollReveal>
+
+                <ScrollReveal delay={0.1}>
+                    <form className="search-bar" onSubmit={handleSearch}>
+                        <input placeholder="Search products..." value={query} onChange={(e) => setQuery(e.target.value)} />
+                        <button type="submit"><FiSearch /> Search</button>
+                    </form>
+                </ScrollReveal>
+
+                <ScrollReveal delay={0.15}>
+                    <div className="categories-filter">
+                        <button className={`category-btn ${!activeCategory ? 'active' : ''}`}
+                            onClick={() => { setActiveCategory(null); loadProducts(); }}>All</button>
+                        {categories.map(cat => (
+                            <button key={cat.id} className={`category-btn ${activeCategory === cat.id ? 'active' : ''}`}
+                                onClick={() => filterByCategory(cat.id)}>{cat.name}</button>
+                        ))}
+                    </div>
+                </ScrollReveal>
+
+                {/* REVIEW MODAL */}
+                {reviewModal && (
+                    <div className="modal-overlay" onClick={() => setReviewModal(null)}>
+                        <motion.div
+                            className="modal-content"
+                            onClick={e => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <h3>Write a Review</h3>
+                            <form onSubmit={handleSubmitReview}>
+                                <div className="form-group">
+                                    <label>Rating</label>
+                                    <div className="star-input">
+                                        {[1, 2, 3, 4, 5].map(s => (
+                                            <span key={s} className={`star-pick ${reviewData.rating >= s ? 'active' : ''}`}
+                                                onClick={() => setReviewData({ ...reviewData, rating: s })}>★</span>
+                                        ))}
                                     </div>
-                                    <p className="product-seller">by {product.sellerName}</p>
-                                    {getStockLabel(product.stock)}
+                                </div>
+                                <div className="form-group">
+                                    <label>Comment (optional)</label>
+                                    <input type="text" placeholder="Share your experience..." value={reviewData.comment}
+                                        onChange={e => setReviewData({ ...reviewData, comment: e.target.value })} />
+                                </div>
+                                <button className="btn-primary" type="submit">Submit Review</button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
 
-                                    {rev && rev.totalReviews > 0 && (
-                                        <div className="product-rating">
-                                            <span className="stars">{renderStars(rev.averageRating)}</span>
-                                            <span className="rating-text">{rev.averageRating} ({rev.totalReviews})</span>
-                                        </div>
-                                    )}
-
-                                    {user?.role === 'BUYER' && (
-                                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                                            <button className="btn-add-cart" onClick={() => handleAddToCart(product.id)}
-                                                disabled={product.stock === 0}>
-                                                {product.stock === 0 ? 'Unavailable' : 'Add to Cart'}
-                                            </button>
-                                            <button className="btn-review" onClick={() => setReviewModal(product.id)}>
-                                                <FiStar />
-                                            </button>
-                                        </div>
-                                    )}
+                {loading ? (
+                    <div className="product-grid">
+                        {[...Array(8)].map((_, i) => (
+                            <div key={i} className="skeleton-card">
+                                <div className="skeleton-image" />
+                                <div className="skeleton-body">
+                                    <div className="skeleton-line skeleton-title" />
+                                    <div className="skeleton-line skeleton-text" />
+                                    <div className="skeleton-meta">
+                                        <div className="skeleton-line skeleton-price" />
+                                        <div className="skeleton-line skeleton-badge" />
+                                    </div>
+                                    <div className="skeleton-line skeleton-btn" />
                                 </div>
                             </div>
-                        )
-                    })}
-                </div>
-            )}
-        </div>
+                        ))}
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="empty-state"><span>📦</span>No products found</div>
+                ) : (
+                    <div className="product-grid">
+                        {products.map((product, index) => {
+                            const rev = reviews[product.id];
+                            return (
+                                <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
+                                    <motion.div
+                                        className="product-card"
+                                        onClick={() => navigate(`/product/${product.id}`)}
+                                        whileHover={{ y: -4 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <div className="product-image">
+                                            {product.imageUrl ? (
+                                                <img src={product.imageUrl} alt={product.name} />
+                                            ) : (
+                                                product.categoryName === 'Electronics' ? '💻' :
+                                                    product.categoryName === 'Clothing' ? '👕' : '🛍️'
+                                            )}
+                                            {user && (
+                                                <button className={`wishlist-btn ${wishlistIds.includes(product.id) ? 'active' : ''}`}
+                                                    onClick={(e) => { e.stopPropagation(); handleToggleWishlist(product.id); }}>
+                                                    <FiHeart />
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="product-info">
+                                            <h3>{product.name}</h3>
+                                            {product.description && <p className="product-seller">{product.description}</p>}
+                                            <div className="product-meta">
+                                                <span className="product-price">₹{product.price}</span>
+                                                <span className="product-category">{product.categoryName}</span>
+                                            </div>
+                                            <p className="product-seller">by {product.sellerName}</p>
+                                            {getStockLabel(product.stock)}
+
+                                            {rev && rev.totalReviews > 0 && (
+                                                <div className="product-rating">
+                                                    <span className="stars">{renderStars(rev.averageRating)}</span>
+                                                    <span className="rating-text">{rev.averageRating} ({rev.totalReviews})</span>
+                                                </div>
+                                            )}
+
+                                            {user?.role === 'BUYER' && (
+                                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                    <button className="btn-add-cart"
+                                                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product.id); }}
+                                                        disabled={product.stock === 0}>
+                                                        {product.stock === 0 ? 'Unavailable' : 'Add to Cart'}
+                                                    </button>
+                                                    <button className="btn-review"
+                                                        onClick={(e) => { e.stopPropagation(); setReviewModal(product.id); }}>
+                                                        <FiStar />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                </ScrollReveal>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </PageTransition>
     );
 }

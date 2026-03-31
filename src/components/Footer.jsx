@@ -6,13 +6,13 @@ export default function Footer() {
         <footer className="site-footer">
             <div className="footer-content">
                 <div className="footer-brand">
-                    <span className="footer-logo">🛍️ ShopVerse</span>
-                    <p>Your one-stop destination for quality products from trusted sellers worldwide.</p>
+                    <span className="footer-logo">TISWA</span>
+                    <p>Curated for the extraordinary. Your destination for quality products from trusted sellers worldwide.</p>
                     <div className="footer-social">
                         <a href="https://github.com/MuhammedShaanTT" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                             <FiGithub />
                         </a>
-                        <a href="mailto:contact@shopverse.com" aria-label="Email">
+                        <a href="mailto:contact@tiswa.com" aria-label="Email">
                             <FiMail />
                         </a>
                     </div>
@@ -34,13 +34,14 @@ export default function Footer() {
                     <div className="footer-col">
                         <h4>Contact</h4>
                         <span className="footer-contact"><FiMapPin /> India</span>
-                        <span className="footer-contact"><FiPhone /> +91 XXXXX XXXXX</span>
-                        <span className="footer-contact"><FiMail /> contact@shopverse.com</span>
+                        <span className="footer-contact"><FiPhone /> +91 9037572701</span>
+                        <span className="footer-contact"><FiMail /> t1swa.official@gmail.com</span>
                     </div>
                 </div>
             </div>
             <div className="footer-bottom">
-                <p>© {new Date().getFullYear()} ShopVerse. Built with ❤️ by Muhammed Shaan</p>
+                <p>© {new Date().getFullYear()} TISWA. Built with ❤️ by Muhammed Shaan</p>
+                <p>All rights reserved.</p>
             </div>
         </footer>
     );

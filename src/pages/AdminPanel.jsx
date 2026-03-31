@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getCategories, createCategory, deleteCategory, getAdminOrders, updateOrderStatus, getAdminUsers, getAdminStats } from '../api';
 import { FiTrash2, FiUsers, FiPackage, FiGrid, FiDollarSign, FiShoppingBag } from 'react-icons/fi';
+import { PageTransition } from '../components/PageTransition';
+import ScrollReveal from '../components/ScrollReveal';
 
 export default function AdminPanel() {
     const [tab, setTab] = useState('stats');
@@ -37,140 +39,140 @@ export default function AdminPanel() {
     };
 
     return (
-        <div className="page">
-            <div className="page-header">
-                <h1>Admin Panel</h1>
-                <p>Manage your platform</p>
-            </div>
+        <PageTransition>
+            <div className="page">
+                <ScrollReveal>
+                    <div className="page-header">
+                        <h1>Admin Panel</h1>
+                        <p>Manage your platform</p>
+                    </div>
+                </ScrollReveal>
 
-            <div className="admin-tabs">
-                <button className={`admin-tab ${tab === 'stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
-                    <FiDollarSign style={{ marginRight: '4px' }} /> Dashboard
-                </button>
-                <button className={`admin-tab ${tab === 'categories' ? 'active' : ''}`} onClick={() => setTab('categories')}>
-                    <FiGrid style={{ marginRight: '4px' }} /> Categories
-                </button>
-                <button className={`admin-tab ${tab === 'orders' ? 'active' : ''}`} onClick={() => setTab('orders')}>
-                    <FiPackage style={{ marginRight: '4px' }} /> Orders ({orders.length})
-                </button>
-                <button className={`admin-tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
-                    <FiUsers style={{ marginRight: '4px' }} /> Users ({users.length})
-                </button>
-            </div>
+                <ScrollReveal delay={0.1}>
+                    <div className="admin-tabs">
+                        <button className={`admin-tab ${tab === 'stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
+                            <FiDollarSign /> Dashboard
+                        </button>
+                        <button className={`admin-tab ${tab === 'categories' ? 'active' : ''}`} onClick={() => setTab('categories')}>
+                            <FiGrid /> Categories
+                        </button>
+                        <button className={`admin-tab ${tab === 'orders' ? 'active' : ''}`} onClick={() => setTab('orders')}>
+                            <FiPackage /> Orders ({orders.length})
+                        </button>
+                        <button className={`admin-tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
+                            <FiUsers /> Users ({users.length})
+                        </button>
+                    </div>
+                </ScrollReveal>
 
-            {msg && <div className="success-msg">{msg}</div>}
-            {error && <div className="error-msg">{error}</div>}
+                {msg && <div className="success-msg">{msg}</div>}
+                {error && <div className="error-msg">{error}</div>}
 
-            {/* STATS TAB */}
-            {tab === 'stats' && stats && (
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#ede9fe' }}><FiDollarSign color="#7c3aed" size={24} /></div>
-                        <div className="stat-info">
-                            <span className="stat-value">₹{Number(stats.totalRevenue).toLocaleString()}</span>
-                            <span className="stat-label">Total Revenue</span>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#dbeafe' }}><FiShoppingBag color="#2563eb" size={24} /></div>
-                        <div className="stat-info">
-                            <span className="stat-value">{stats.totalOrders}</span>
-                            <span className="stat-label">Total Orders</span>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#dcfce7' }}><FiUsers color="#16a34a" size={24} /></div>
-                        <div className="stat-info">
-                            <span className="stat-value">{stats.totalUsers}</span>
-                            <span className="stat-label">Total Users</span>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#fef3c7' }}><FiGrid color="#d97706" size={24} /></div>
-                        <div className="stat-info">
-                            <span className="stat-value">{stats.totalProducts}</span>
-                            <span className="stat-label">Total Products</span>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {tab === 'categories' && (
-                <div className="dashboard-grid">
-                    <div className="dashboard-card">
-                        <h3>Add Category</h3>
-                        <form onSubmit={handleCreateCategory}>
-                            <div className="form-group">
-                                <label>Category Name</label>
-                                <input type="text" placeholder="e.g. Electronics" value={catName}
-                                    onChange={(e) => setCatName(e.target.value)} required />
-                            </div>
-                            <button className="btn-primary" type="submit">Create</button>
-                        </form>
-                    </div>
-                    <div className="dashboard-card">
-                        <h3>All Categories ({categories.length})</h3>
-                        {categories.map(cat => (
-                            <div key={cat.id} className="item-row">
-                                <span>{cat.name}</span>
-                                <button className="btn-danger" onClick={() => handleDeleteCategory(cat.id)}>
-                                    <FiTrash2 /> Delete
-                                </button>
-                            </div>
+                {/* STATS TAB */}
+                {tab === 'stats' && stats && (
+                    <div className="stats-grid">
+                        {[
+                            { icon: <FiDollarSign color="#c9a962" size={24} />, bg: 'var(--accent-gold-soft)', value: `₹${Number(stats.totalRevenue).toLocaleString()}`, label: 'Total Revenue' },
+                            { icon: <FiShoppingBag color="#3b82f6" size={24} />, bg: 'rgba(59,130,246,0.1)', value: stats.totalOrders, label: 'Total Orders' },
+                            { icon: <FiUsers color="#16a34a" size={24} />, bg: 'rgba(22,163,106,0.1)', value: stats.totalUsers, label: 'Total Users' },
+                            { icon: <FiGrid color="#d97706" size={24} />, bg: 'rgba(217,119,6,0.1)', value: stats.totalProducts, label: 'Total Products' },
+                        ].map((stat, i) => (
+                            <ScrollReveal key={i} delay={i * 0.1}>
+                                <div className="stat-card">
+                                    <div className="stat-icon" style={{ background: stat.bg }}>{stat.icon}</div>
+                                    <div className="stat-info">
+                                        <span className="stat-value">{stat.value}</span>
+                                        <span className="stat-label">{stat.label}</span>
+                                    </div>
+                                </div>
+                            </ScrollReveal>
                         ))}
                     </div>
-                </div>
-            )}
+                )}
 
-            {tab === 'orders' && (
-                <div>
-                    {orders.length === 0 ? (
-                        <div className="empty-state"><span>📦</span>No orders</div>
-                    ) : (
+                {tab === 'categories' && (
+                    <ScrollReveal>
+                        <div className="dashboard-grid">
+                            <div className="dashboard-card">
+                                <h3>Add Category</h3>
+                                <form onSubmit={handleCreateCategory}>
+                                    <div className="form-group">
+                                        <label>Category Name</label>
+                                        <input type="text" placeholder="e.g. Electronics" value={catName}
+                                            onChange={(e) => setCatName(e.target.value)} required />
+                                    </div>
+                                    <button className="btn-primary" type="submit">Create</button>
+                                </form>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>All Categories ({categories.length})</h3>
+                                {categories.map(cat => (
+                                    <div key={cat.id} className="item-row">
+                                        <span style={{ color: 'var(--text-primary)' }}>{cat.name}</span>
+                                        <button className="btn-danger" onClick={() => handleDeleteCategory(cat.id)}>
+                                            <FiTrash2 /> Delete
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </ScrollReveal>
+                )}
+
+                {tab === 'orders' && (
+                    <ScrollReveal>
+                        <div>
+                            {orders.length === 0 ? (
+                                <div className="empty-state"><span>📦</span>No orders</div>
+                            ) : (
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr><th>ID</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {orders.map(order => (
+                                            <tr key={order.id}>
+                                                <td><strong>#{order.id}</strong></td>
+                                                <td>{order.items.map(i => `${i.productName} ×${i.quantity}`).join(', ')}</td>
+                                                <td style={{ fontWeight: 600, color: 'var(--accent-gold)' }}>₹{order.totalAmount.toFixed(2)}</td>
+                                                <td><span className={`status-badge status-${order.status}`}>{order.status}</span></td>
+                                                <td>
+                                                    <select className="status-select" value={order.status}
+                                                        onChange={(e) => handleStatusChange(order.id, e.target.value)}>
+                                                        <option value="PENDING">PENDING</option>
+                                                        <option value="CONFIRMED">CONFIRMED</option>
+                                                        <option value="SHIPPED">SHIPPED</option>
+                                                        <option value="DELIVERED">DELIVERED</option>
+                                                        <option value="CANCELLED">CANCELLED</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </ScrollReveal>
+                )}
+
+                {tab === 'users' && (
+                    <ScrollReveal>
                         <table className="admin-table">
-                            <thead>
-                                <tr><th>ID</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr>
-                            </thead>
+                            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr></thead>
                             <tbody>
-                                {orders.map(order => (
-                                    <tr key={order.id}>
-                                        <td><strong>#{order.id}</strong></td>
-                                        <td>{order.items.map(i => `${i.productName} ×${i.quantity}`).join(', ')}</td>
-                                        <td style={{ fontWeight: 600, color: '#7c3aed' }}>₹{order.totalAmount.toFixed(2)}</td>
-                                        <td><span className={`status-badge status-${order.status}`}>{order.status}</span></td>
-                                        <td>
-                                            <select className="status-select" value={order.status}
-                                                onChange={(e) => handleStatusChange(order.id, e.target.value)}>
-                                                <option value="PENDING">PENDING</option>
-                                                <option value="CONFIRMED">CONFIRMED</option>
-                                                <option value="SHIPPED">SHIPPED</option>
-                                                <option value="DELIVERED">DELIVERED</option>
-                                                <option value="CANCELLED">CANCELLED</option>
-                                            </select>
-                                        </td>
+                                {users.map(user => (
+                                    <tr key={user.id}>
+                                        <td>#{user.id}</td>
+                                        <td><strong style={{ color: 'var(--text-primary)' }}>{user.name}</strong></td>
+                                        <td>{user.email}</td>
+                                        <td><span className="role-badge">{user.role}</span></td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                    )}
-                </div>
-            )}
-
-            {tab === 'users' && (
-                <table className="admin-table">
-                    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr></thead>
-                    <tbody>
-                        {users.map(user => (
-                            <tr key={user.id}>
-                                <td>#{user.id}</td>
-                                <td><strong>{user.name}</strong></td>
-                                <td>{user.email}</td>
-                                <td><span className="role-badge">{user.role}</span></td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-        </div>
+                    </ScrollReveal>
+                )}
+            </div>
+        </PageTransition>
     );
 }

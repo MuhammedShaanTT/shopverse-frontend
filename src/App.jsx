@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './AuthContext';
 import { ToastProvider } from './components/Toast';
 import Navbar from './components/Navbar';
@@ -15,55 +16,65 @@ import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import ProductDetail from './pages/ProductDetail';
 
+function AnimatedRoutes() {
+    const location = useLocation();
+
+    return (
+        <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/cart" element={
+                    <ProtectedRoute allowedRoles={['BUYER']}>
+                        <Cart />
+                    </ProtectedRoute>
+                } />
+                <Route path="/orders" element={
+                    <ProtectedRoute allowedRoles={['BUYER']}>
+                        <Orders />
+                    </ProtectedRoute>
+                } />
+                <Route path="/wishlist" element={
+                    <ProtectedRoute allowedRoles={['BUYER']}>
+                        <Wishlist />
+                    </ProtectedRoute>
+                } />
+                <Route path="/seller" element={
+                    <ProtectedRoute allowedRoles={['SELLER']}>
+                        <SellerDashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin" element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                        <AdminPanel />
+                    </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                    <ProtectedRoute>
+                        <Profile />
+                    </ProtectedRoute>
+                } />
+            </Routes>
+        </AnimatePresence>
+    );
+}
+
 function App() {
-  return (
-    <AuthProvider>
-      <ToastProvider>
-      <BrowserRouter>
-        <Navbar />
-        <div style={{ minHeight: 'calc(100vh - 160px)' }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={
-              <ProtectedRoute allowedRoles={['BUYER']}>
-                <Cart />
-              </ProtectedRoute>
-            } />
-            <Route path="/orders" element={
-              <ProtectedRoute allowedRoles={['BUYER']}>
-                <Orders />
-              </ProtectedRoute>
-            } />
-            <Route path="/wishlist" element={
-              <ProtectedRoute allowedRoles={['BUYER']}>
-                <Wishlist />
-              </ProtectedRoute>
-            } />
-            <Route path="/seller" element={
-              <ProtectedRoute allowedRoles={['SELLER']}>
-                <SellerDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminPanel />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </div>
-        <Footer />
-      </BrowserRouter>
-      </ToastProvider>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <ToastProvider>
+                <BrowserRouter>
+                    <Navbar />
+                    <div style={{ minHeight: 'calc(100vh - 160px)' }}>
+                        <AnimatedRoutes />
+                    </div>
+                    <Footer />
+                </BrowserRouter>
+            </ToastProvider>
+        </AuthProvider>
+    );
 }
 
 export default App;
