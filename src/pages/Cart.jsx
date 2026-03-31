@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getCart, removeFromCart, clearCart, placeOrder, updateCartQuantity } from '../api';
+import { getCart, removeFromCart, clearCart, updateCartQuantity, getAddresses } from '../api';
+import API from '../api';
 import { useNavigate } from 'react-router-dom';
-import { FiTrash2, FiShoppingBag, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiTrash2, FiShoppingBag, FiPlus, FiMinus, FiMapPin } from 'react-icons/fi';
 import { PageTransition } from '../components/PageTransition';
 import ScrollReveal from '../components/ScrollReveal';
 
@@ -11,9 +12,23 @@ export default function Cart() {
     const [loading, setLoading] = useState(true);
     const [msg, setMsg] = useState('');
     const [ordering, setOrdering] = useState(false);
+    const [addresses, setAddresses] = useState([]);
+    const [selectedAddress, setSelectedAddress] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => { loadCart(); }, []);
+    useEffect(() => { 
+        loadCart(); 
+        loadAddresses();
+    }, []);
+
+    const loadAddresses = async () => {
+        try {
+            const res = await getAddresses();
+            setAddresses(res.data);
+            const defaultAddr = res.data.find(a => a.isDefault) || res.data[0];
+            if (defaultAddr) setSelectedAddress(defaultAddr.id);
+        } catch (err) { console.error(err); }
+    };
 
     const loadCart = async () => {
         try {
@@ -43,9 +58,13 @@ export default function Cart() {
     };
 
     const handleCheckout = async () => {
+        if (addresses.length === 0) {
+            setMsg('Please add a shipping address before checkout.');
+            return;
+        }
         setOrdering(true);
         try {
-            await placeOrder();
+            await API.post(`/orders${selectedAddress ? `?addressId=${selectedAddress}` : ''}`);
             setMsg('Order placed successfully! 🎉');
             setItems([]);
             setTimeout(() => navigate('/orders'), 1500);
@@ -110,11 +129,27 @@ export default function Cart() {
                         </div>
 
                         <ScrollReveal delay={0.2}>
-                            <div className="cart-summary">
-                                <div className="cart-total">Total: <span>₹{total.toFixed(2)}</span></div>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button className="btn-remove" onClick={handleClear}>Clear All</button>
-                                    <button className="btn-checkout" onClick={handleCheckout} disabled={ordering}>
+                            <div className="cart-summary" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                                    <div className="shipping-address-selector" style={{ flex: 1, minWidth: '250px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600 }}><FiMapPin /> Shipping Address</label>
+                                        {addresses.length > 0 ? (
+                                            <select className="input-field" value={selectedAddress || ''} onChange={e => setSelectedAddress(e.target.value)}>
+                                                {addresses.map(addr => (
+                                                    <option key={addr.id} value={addr.id}>{addr.fullName} - {addr.street}, {addr.city}</option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <div style={{ padding: '0.5rem 1rem', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.9rem' }}>
+                                                No address found. <a href="/addresses" style={{ color: 'var(--accent)' }}>Add one</a>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="cart-total" style={{ margin: 0 }}>Total: <span style={{ fontSize: '1.5rem', color: 'var(--accent)', marginLeft: '1rem' }}>₹{total.toFixed(2)}</span></div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                                    <button className="btn-secondary" onClick={handleClear}>Clear All</button>
+                                    <button className="btn-checkout" onClick={handleCheckout} disabled={ordering || addresses.length === 0}>
                                         <FiShoppingBag /> {ordering ? 'Placing...' : 'Place Order'}
                                     </button>
                                 </div>

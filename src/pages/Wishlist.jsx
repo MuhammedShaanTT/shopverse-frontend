@@ -38,15 +38,42 @@ export default function Wishlist() {
         }
     };
 
+    const handleAddAllToCart = async () => {
+        if (items.length === 0) return;
+        setLoading(true);
+        let addedCount = 0;
+        for (const item of items) {
+            try {
+                await addToCart({ productId: item.productId, quantity: 1 });
+                addedCount++;
+            } catch (err) {
+                // Ignore individual errors, e.g. out of stock
+            }
+        }
+        if (addedCount > 0) {
+            addToast(`Added ${addedCount} item(s) to cart ✓`, 'success');
+        } else {
+            addToast('Items could not be added (may be out of stock)', 'error');
+        }
+        setLoading(false);
+    };
+
     if (loading) return <PageTransition><div className="page"><div className="loading">Loading...</div></div></PageTransition>;
 
     return (
         <PageTransition>
             <div className="page">
                 <ScrollReveal>
-                    <div className="page-header">
-                        <h1>My Wishlist</h1>
-                        <p>{items.length} saved item{items.length !== 1 ? 's' : ''}</p>
+                    <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div>
+                            <h1>My Wishlist</h1>
+                            <p>{items.length} saved item{items.length !== 1 ? 's' : ''}</p>
+                        </div>
+                        {items.length > 0 && (
+                            <button className="btn-primary" onClick={handleAddAllToCart}>
+                                <FiShoppingCart /> Add All to Cart
+                            </button>
+                        )}
                     </div>
                 </ScrollReveal>
 

@@ -6,7 +6,7 @@ import { useAuth } from '../AuthContext';
 import { useToast } from '../components/Toast';
 import { PageTransition } from '../components/PageTransition';
 import ScrollReveal from '../components/ScrollReveal';
-import { FiHeart, FiShoppingCart, FiArrowLeft, FiStar, FiPackage, FiUser, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiHeart, FiShoppingCart, FiArrowLeft, FiStar, FiPackage, FiUser, FiPlus, FiMinus, FiShare2 } from 'react-icons/fi';
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -84,6 +84,16 @@ export default function ProductDetail() {
         } catch (err) {
             addToast(err.response?.data?.message || 'Already reviewed', 'error');
             setShowReview(false);
+        }
+    };
+
+    const handleShare = () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({ title: product.name, url });
+        } else {
+            navigator.clipboard.writeText(url);
+            addToast('Link copied to clipboard ✓', 'success');
         }
     };
 
@@ -168,6 +178,9 @@ export default function ProductDetail() {
                                         </button>
                                     </>
                                 )}
+                                <button className="btn-secondary" onClick={handleShare} title="Share">
+                                    <FiShare2 />
+                                </button>
                             </div>
                         )}
 
@@ -213,6 +226,18 @@ export default function ProductDetail() {
                                                 <span className="review-author">{rev.userName}</span>
                                             </div>
                                             {rev.comment && <p className="review-comment">{rev.comment}</p>}
+                                            {rev.sellerReply && (
+                                                <div className="seller-reply" style={{ marginTop: '1rem', padding: '1rem', background: 'var(--surface)', borderRadius: '8px', borderLeft: '3px solid var(--accent)' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                        <FiUser size={14} style={{ color: 'var(--accent)' }}/>
+                                                        <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>Response from Seller</span>
+                                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                            {new Date(rev.sellerReplyAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        </span>
+                                                    </div>
+                                                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-muted)' }}>{rev.sellerReply}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </ScrollReveal>
                                 ))}

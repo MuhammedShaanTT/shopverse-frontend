@@ -15,6 +15,7 @@ import AdminPanel from './pages/AdminPanel';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import ProductDetail from './pages/ProductDetail';
+import AddressManager from './pages/AddressManager';
 
 function AnimatedRoutes() {
     const location = useLocation();
@@ -29,6 +30,11 @@ function AnimatedRoutes() {
                 <Route path="/cart" element={
                     <ProtectedRoute allowedRoles={['BUYER']}>
                         <Cart />
+                    </ProtectedRoute>
+                } />
+                <Route path="/addresses" element={
+                    <ProtectedRoute allowedRoles={['BUYER']}>
+                        <AddressManager />
                     </ProtectedRoute>
                 } />
                 <Route path="/orders" element={

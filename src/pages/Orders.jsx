@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { getOrders, cancelOrder } from '../api';
 import { PageTransition } from '../components/PageTransition';
 import ScrollReveal from '../components/ScrollReveal';
+import { FiPrinter } from 'react-icons/fi';
 
 const TIMELINE_STEPS = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
 
@@ -101,11 +101,31 @@ export default function Orders() {
                                     {order.status === 'PENDING' && (
                                         <button className="btn-cancel" onClick={() => handleCancel(order.id)}>Cancel Order</button>
                                     )}
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
-                                        {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                                        })}
-                                    </span>
+                                    <button className="btn-secondary" onClick={() => {
+                                        window.print();
+                                    }} style={{ gap: '0.5rem', display: 'flex', alignItems: 'center', marginLeft: order.status === 'PENDING' ? '1rem' : '0' }}>
+                                        <FiPrinter /> Print Invoice
+                                    </button>
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginLeft: 'auto' }}>
+                                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                            Ordered: {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                                                day: 'numeric', month: 'short', year: 'numeric'
+                                            })}
+                                        </span>
+                                        {order.estimatedDelivery && order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 500 }}>
+                                                Expected Delivery: {new Date(order.estimatedDelivery).toLocaleDateString('en-IN', {
+                                                    day: 'numeric', month: 'short', year: 'numeric'
+                                                })}
+                                            </span>
+                                        )}
+                                        {order.status === 'DELIVERED' && (
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--success)', fontWeight: 500 }}>
+                                                Delivered
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </ScrollReveal>

@@ -14,6 +14,10 @@ export default function Home() {
     const [categories, setCategories] = useState([]);
     const [activeCategory, setActiveCategory] = useState(null);
     const [query, setQuery] = useState('');
+    const [sort, setSort] = useState('');
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+    const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(true);
     const [wishlistIds, setWishlistIds] = useState([]);
     const [reviewModal, setReviewModal] = useState(null);
@@ -31,12 +35,17 @@ export default function Home() {
     const loadProducts = async () => {
         setLoading(true);
         try {
-            const res = await getProducts();
+            const res = await getProducts(page, sort, minPrice, maxPrice);
             setProducts(res.data.content);
             res.data.content.forEach(p => loadReviews(p.id));
         } catch (err) { console.error(err); }
         setLoading(false);
     };
+
+    // Re-fetch when sort, minPrice, maxPrice change. 
+    useEffect(() => {
+        loadProducts();
+    }, [sort, minPrice, maxPrice, page]);
 
     const loadCategories = async () => {
         try { setCategories((await getCategories()).data); } catch (err) { console.error(err); }
@@ -170,13 +179,27 @@ export default function Home() {
                 </ScrollReveal>
 
                 <ScrollReveal delay={0.15}>
-                    <div className="categories-filter">
+                    <div className="categories-filter" style={{ marginBottom: '1rem' }}>
                         <button className={`category-btn ${!activeCategory ? 'active' : ''}`}
                             onClick={() => { setActiveCategory(null); loadProducts(); }}>All</button>
                         {categories.map(cat => (
                             <button key={cat.id} className={`category-btn ${activeCategory === cat.id ? 'active' : ''}`}
                                 onClick={() => filterByCategory(cat.id)}>{cat.name}</button>
                         ))}
+                    </div>
+                </ScrollReveal>
+
+                <ScrollReveal delay={0.2}>
+                    <div className="filter-controls" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+                        <select className="input-field" value={sort} onChange={e => setSort(e.target.value)} style={{ width: 'auto' }}>
+                            <option value="">Sort by: Featured</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="newest">Newest Arrivals</option>
+                        </select>
+                        <input className="input-field" type="number" placeholder="Min Price" value={minPrice} onChange={e => setMinPrice(e.target.value)} style={{ width: '120px' }} />
+                        <input className="input-field" type="number" placeholder="Max Price" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} style={{ width: '120px' }} />
+                        <button className="btn-secondary" onClick={() => loadProducts()}>Apply Filters</button>
                     </div>
                 </ScrollReveal>
 
