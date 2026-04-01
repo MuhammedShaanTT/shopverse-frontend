@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getCart, removeFromCart, clearCart, updateCartQuantity, getAddresses } from '../api';
 import API from '../api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FiTrash2, FiShoppingBag, FiPlus, FiMinus, FiMapPin } from 'react-icons/fi';
 import { PageTransition } from '../components/PageTransition';
 import ScrollReveal from '../components/ScrollReveal';
@@ -141,7 +141,7 @@ export default function Cart() {
                                             </select>
                                         ) : (
                                             <div style={{ padding: '0.5rem 1rem', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.9rem' }}>
-                                                No address found. <a href="/addresses" style={{ color: 'var(--accent)' }}>Add one</a>
+                                                No address found. <Link to="/addresses" style={{ color: 'var(--accent)' }}>Add one</Link>
                                             </div>
                                         )}
                                     </div>

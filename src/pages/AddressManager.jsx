@@ -26,7 +26,7 @@ export default function AddressManager() {
         setLoading(true);
         try {
             const res = await getAddresses();
-            setAddresses(res.data);
+            setAddresses(res.data || []);
         } catch (err) {
             addToast('Failed to load addresses', 'error');
         }

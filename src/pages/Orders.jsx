@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { getOrders, cancelOrder } from '../api';
 import { PageTransition } from '../components/PageTransition';
 import ScrollReveal from '../components/ScrollReveal';
@@ -40,7 +41,7 @@ export default function Orders() {
 
     useEffect(() => {
         const load = async () => {
-            try { setOrders((await getOrders()).data); } catch (err) { console.error(err); }
+            try { setOrders((await getOrders()).data || []); } catch (err) { console.error(err); }
             setLoading(false);
         };
         load();
